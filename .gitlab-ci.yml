@@ -1,0 +1,40 @@
+
+image: docker:19.03.7
+services:
+  - docker:19.03.7-dind
+stages:
+  - Build
+  - Push
+
+##############################################################################
+##                              Variables                                   ##
+##############################################################################
+variables:
+  APP_NAME: gitops-argocd-demo
+
+##############################################################################
+##                             Build Image                                 ##
+##############################################################################
+Build:
+  image: docker:19.03.5
+  services:
+    - docker:19.03.5-dind
+  stage: Build
+  script:
+    - docker build --compress -t $ECR_REPO:$CI_COMMIT_SHORT_SHA .
+
+##############################################################################
+##                       Push to ECR                                       ##
+##############################################################################
+Push:
+  image: docker:19.03.5
+  services:
+    - docker:19.03.5-dind
+  stage: Push
+  script:
+    - apk add python3
+    - pip3 install awscli
+    - $(aws ecr get-login --no-include-email --region eu-west-1)
+    - docker push $ECR_REPO:$CI_COMMIT_SHORT_SHA
+    - docker tag $ECR_REPO:$CI_COMMIT_SHORT_SHA $ECR_REPO:latest
+    - docker push $ECR_REPO:latest
