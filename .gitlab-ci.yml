@@ -1,10 +1,10 @@
-
 image: docker:19.03.7
 services:
   - docker:19.03.7-dind
 stages:
   - Build
   - Push
+  - Update Chart
 
 ##############################################################################
 ##                              Variables                                   ##
@@ -12,7 +12,11 @@ stages:
 variables:
   AWS_ROLE_ARN: arn:aws:iam::167259143853:role/gitlab-ci
   AWS_WEB_IDENTITY_TOKEN_FILE: /tmp/web-identity-token
-
+  CD_CHART_REPO: nginx-webserver-chart
+  CD_GIT_REPOSITORY: git@gitlab.com:calvine-devops/gitops-argocd-demo/$CD_CHART_REPO.git
+  CD_MANIFEST_FILE: values.yaml
+  APP_NAME: gitops-argocd-demo
+  CHART_FOLDER: helm
 
 ##############################################################################
 ##                Setup OIDC Assume Role Template                          ##
@@ -34,12 +38,19 @@ variables:
     - $(aws ecr get-login --no-include-email --region eu-west-1)
 
 ##############################################################################
+##                Setup and Enable SSH                          ##
+##############################################################################
+.enable_ssh: &enable_ssh |-
+    apk add --no-cache git
+    mkdir -p /root/.ssh
+    echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+    ssh-keyscan -H gitlab.com > /root/.ssh/known_hosts
+    chmod 600 /root/.ssh/id_rsa
+
+##############################################################################
 ##                             Build Image                                 ##
 ##############################################################################
 Build:
-  image: docker:19.03.5
-  services:
-    - docker:19.03.5-dind
   <<: *assume_role
   stage: Build
   script:
@@ -50,12 +61,31 @@ Build:
 ##                       Push to ECR                                       ##
 ##############################################################################
 Push:
-  image: docker:19.03.5
-  services:
-    - docker:19.03.5-dind
   stage: Push
   <<: *assume_role
   script:
     - docker pull $ECR_REPO:$CI_COMMIT_SHORT_SHA
     - docker tag $ECR_REPO:$CI_COMMIT_SHORT_SHA $ECR_REPO:latest
     - docker push $ECR_REPO:latest
+
+update_chart_manifest:
+  stage: Update Chart
+  variables:
+    GIT_STRATEGY: none
+  retry: 2
+  before_script:
+    - *enable_ssh
+  script:
+    # Configure Git
+    - git config --global user.name $APP_NAME
+    - git config --global user.email $APP_NAME"@gitlab.com"
+    - git clone --single-branch --branch main $CD_GIT_REPOSITORY
+    - cd $CD_CHART_REPO
+    - cd $CHART_FOLDER
+    # HELM Update
+    - >
+      tag=$(cat values.yaml | grep tag: | awk '{print $2}')
+    - sed -i "s/$tag/$CI_COMMIT_SHORT_SHA/" values.yaml
+    - cat $CD_MANIFEST_FILE
+    - cd ..
+    - git commit -am "update image tag" && git push origin main
