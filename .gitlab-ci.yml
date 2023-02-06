@@ -70,6 +70,8 @@ Push:
 
 update_chart_manifest:
   stage: Update Chart
+  needs:
+    - Push
   variables:
     GIT_STRATEGY: none
   retry: 2
@@ -88,4 +90,4 @@ update_chart_manifest:
     - sed -i "s/$tag/$CI_COMMIT_SHORT_SHA/" values.yaml
     - cat $CD_MANIFEST_FILE
     - cd ..
-    - git commit -am "update image tag" && git push origin main
+    - git commit -am "🔥 update image tag" && git push origin main
