@@ -3,7 +3,7 @@ name: Trivy and Cosign Image Security
 on: push
     
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: registry.hub.docker.com
   IMAGE_NAME: nginxwebserver
   GITHUB_ACTOR: nyaras ### my github username is uppercase ☹️ so I have to set this
 
@@ -25,9 +25,8 @@ jobs:
       - name: Log into registry
         uses: docker/login-action@v1.12.0
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         id: build-and-push
@@ -35,7 +34,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.GITHUB_ACTOR }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+          tags: ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
       
       - name: cosign-installer
         uses: sigstore/cosign-installer@v2.0.0
@@ -49,4 +48,4 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ env.GITHUB_ACTOR }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+        run: cosign sign --key cosign.key ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
