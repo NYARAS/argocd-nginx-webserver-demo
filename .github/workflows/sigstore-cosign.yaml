@@ -48,4 +48,4 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+        run: cosign sign --key cosign.key -a "author=CalvineDevOps" ${{ secrets.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
