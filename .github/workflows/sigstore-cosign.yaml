@@ -1,11 +1,12 @@
 name: Trivy and Cosign Image Security
 
-on: push
+on:
+  push:
+    branches:
+      - main
     
 env:
-  REGISTRY: registry.hub.docker.com
   IMAGE_NAME: nginxwebserver
-  GITHUB_ACTOR: nyaras ### my github username is uppercase ☹️ so I have to set this
 
 jobs:
   build:
