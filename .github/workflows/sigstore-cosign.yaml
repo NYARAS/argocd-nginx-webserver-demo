@@ -1,4 +1,4 @@
-name: Trivy and Cosign Image Security
+name: Trivy and Cosign Image Security - Docker HUB
 
 on:
   push:
