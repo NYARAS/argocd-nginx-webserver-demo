@@ -10,7 +10,16 @@ env:
 
 jobs:
   build:
-
+    strategy:
+      matrix:
+        include:
+        - arch    : amd64
+          mode    : build-and-test
+        - arch    : arm64
+          variant : v8
+          mode    : build-only
+    env:
+      PLATFORM  : linux/${{ matrix.arch }}${{ (matrix.variant != '' && format('/{0}', matrix.variant)) || '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
