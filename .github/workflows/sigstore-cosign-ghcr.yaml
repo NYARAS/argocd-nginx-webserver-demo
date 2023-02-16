@@ -27,9 +27,6 @@ jobs:
           mode    : build-only
     runs-on: ubuntu-latest
     env:
-      VOLUME    : osm-db
-      CONTAINER : osm-www
-      MOUNT     : /data/database/
       PLATFORM  : linux/${{ matrix.arch }}${{ (matrix.variant != '' && format('/{0}', matrix.variant)) || '' }}
     permissions:
       contents: read
