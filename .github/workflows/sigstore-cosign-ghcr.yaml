@@ -1,11 +1,19 @@
-name: Trivy and Cosign Image Security
+name: Trivy and Cosign Image Security -  GHCR
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: nginxwebserver
   GITHUB_ACTOR: nyaras ### my github username is uppercase ☹️ so I have to set this
+
+# cancel outdated jobs for the same reference
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
