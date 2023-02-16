@@ -9,8 +9,20 @@ env:
 
 jobs:
   build:
-
+    strategy:
+      matrix:
+        include:
+        - arch    : amd64
+          mode    : build-and-test
+        - arch    : arm64
+          variant : v8
+          mode    : build-only
     runs-on: ubuntu-latest
+    env:
+      VOLUME    : osm-db
+      CONTAINER : osm-www
+      MOUNT     : /data/database/
+      PLATFORM  : linux/${{ matrix.arch }}${{ (matrix.variant != '' && format('/{0}', matrix.variant)) || '' }}
     permissions:
       contents: read
       packages: write
@@ -40,7 +52,10 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.GITHUB_ACTOR }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
-      
+          platforms  : ${{ env.PLATFORM }}
+          cache-from : type=gha,scope=${{ github.workflow }}:${{ env.PLATFORM }}
+          cache-to   : type=gha,scope=${{ github.workflow }}:${{ env.PLATFORM }},mode=max
+
       - name: cosign-installer
         uses: sigstore/cosign-installer@v2.0.0
         
