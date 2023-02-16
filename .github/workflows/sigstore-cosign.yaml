@@ -8,6 +8,10 @@ on:
 env:
   IMAGE_NAME: nginxwebserver
 
+# cancel outdated jobs for the same reference
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
 
