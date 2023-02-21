@@ -13,6 +13,12 @@ We use Sigstore to Sign and verify the image. The signing part has been automate
 
 Example:
 
+#### Generate the Keys
+
+```sh
+cosign generate-key-pair 
+```
+
 #### Signing
 
 ```sh
