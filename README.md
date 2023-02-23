@@ -31,6 +31,60 @@ cosign sign --key cosign.key -a "author=CalvineDevOps" argocd-nginx-webserver
 cosign verify --key cosign.pub devopscalvine/nginxwebserver:4184854252 | jq -r . 
 ```
 
+## Using Kyverno as a verification engine
+
+Kyverno is a policy engine designed for Kubernetes. With Kyverno policies are managed as Kubernetes resource and no new language is required for writing policies.
+
+Kyverno policies can validate, mutate, and generate kubernetes resources. You can use Kyverno CLI to test policies and validate resources as part of your CI/CD pipeline.
+
+Kyverno offers an image verification that uses the Cosign component from Sigstore project
+
+Example:
+
+#### Sample Kyverno Policy for image check
+
+```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: check-image
+spec:
+  validationFailureAction: Enforce
+  background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
+  rules:
+    - name: check-image
+      match:
+        any:
+        - resources:
+            kinds:
+              - Pod
+      verifyImages:
+      - image: "ghcr.io/nyaras/nginxwebserver:*"
+      # This is just a sample cosign public key. Replace with your own public key
+        key: |-
+          -----BEGIN PUBLIC KEY-----
+          MFssdkdkdkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGosO5RNeDtIXEm2Y7tECBDT0aJVyb
+          BkZuykTpu6rgZxcQhN1lJ9b76yjxZnNnWB+4Zl/tgO7k+t2brA0bBfecIFeQ==
+          -----END PUBLIC KEY-----
+```
+
+#### Testing Kyverno Cluster Policy to ensure that ONLY our signed images can be deploy in K8s
+
+```sh
+kubectl run unsignedimgpod --image ghcr.io/nyaras/nginxwebserver:unsignednotsecure
+Error from server: admission webhook "mutate.kyverno.svc-fail" denied the request: 
+
+policy Pod/default/unsignedimgpod for resource violation: 
+
+check-image:
+  check-image: |
+    failed to verify image ghcr.io/nyaras/nginxwebserver:unsignednotsecure: .attestors[0].entries[0].keys: no matching signatures:
+```
+
+🔥 Kyverno helps secure our `Software Supply Chain` by preventing deployment of pods that uses containers images have not been signed by our signatures.
+
 ## Authors and acknowledgment
  * [Calvine Otieno](https://www.calvineotieno.com)
 
