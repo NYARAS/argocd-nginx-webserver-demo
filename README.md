@@ -37,7 +37,9 @@ Kyverno is a policy engine designed for Kubernetes. With Kyverno policies are ma
 
 Kyverno policies can validate, mutate, and generate kubernetes resources. You can use Kyverno CLI to test policies and validate resources as part of your CI/CD pipeline.
 
-Kyverno offers an image verification that uses the Cosign component from Sigstore project
+Kyverno offers an image verification that uses the Cosign component from Sigstore project.
+
+Using Kyverno immensely improve `Software Supply Chain` by making sure you only run verified images and containers in your infrastructure.
 
 Example:
 
