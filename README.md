@@ -41,6 +41,20 @@ Kyverno offers an image verification that uses the Cosign component from Sigstor
 
 Using Kyverno immensely improve `Software Supply Chain` by making sure you only run verified images and containers in your infrastructure.
 
+### Installation
+
+#### Add Kyverno Helm repository
+
+```bash
+helm repo add kyverno https://kyverno.github.io/kyverno/
+helm repo update
+```
+
+### Then install Kyverno using Helm
+
+```helm install kyverno --namespace kyverno kyverno/kyverno --create-namespace
+```
+
 Example:
 
 #### Sample Kyverno Policy for image check
