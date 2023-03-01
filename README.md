@@ -39,8 +39,6 @@ Kyverno policies can validate, mutate, and generate kubernetes resources. You ca
 
 Kyverno offers an image verification that uses the Cosign component from Sigstore project
 
-<<<<<<< Updated upstream
-=======
 ### Installation
 
 #### Add Kyverno Helm repository
@@ -56,7 +54,6 @@ helm repo update
 helm install kyverno --namespace kyverno kyverno/kyverno --create-namespace
 ```
 
->>>>>>> Stashed changes
 Example:
 
 #### Sample Kyverno Policy for image check
