@@ -55,6 +55,24 @@ helm repo update
 ```helm install kyverno --namespace kyverno kyverno/kyverno --create-namespace
 ```
 
+<<<<<<< Updated upstream
+=======
+### Installation
+
+#### Add Kyverno Helm repository
+
+```bash
+helm repo add kyverno https://kyverno.github.io/kyverno/
+helm repo update
+```
+
+### Then install Kyverno using Helm
+
+```bash
+helm install kyverno --namespace kyverno kyverno/kyverno --create-namespace
+```
+
+>>>>>>> Stashed changes
 Example:
 
 #### Sample Kyverno Policy for image check
